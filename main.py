@@ -1,14 +1,14 @@
 import pandas as pd
 
 # Read in CSV files
-household = pd.read_csv('household_vista_2023_2024.csv')
-trips = pd.read_csv('trips_vista_2023_2024.csv')
+household = pd.read_csv('household_vista_2023_2024.csv', index_col = 0)
+trips = pd.read_csv('trips_vista_2023_2024.csv', index_col = 0)
 
-# Removes missing data that won't contribute to analysis
+# Removes missing data and data that won't contribute to analysis
 household = household[household['hhinc_group'].notna()]
+household = household.drop(columns = ['surveyperiod'])
 
-# Split hhinc columns into Weekly and Annual income
-# Easier to read and understand
+# Split hhinc columns into Weekly and Annual income (easier to read and understand)
 household[['weekly_hhinc_group', 'annual_hhinc_group']] = household['hhinc_group'].str.split('(', n=1, expand=True)
 household['annual_hhinc_group'] = household['annual_hhinc_group'].str.strip('()')
 household['weekly_hhinc_group'] = household['weekly_hhinc_group'].str.strip(' ')
@@ -33,3 +33,17 @@ annual_encode = { '$1-$7,799' : 0,  '$7,800-$15,599' : 1,  '$15,600-$20,799' : 2
 
 household['annual_hhinc_group'] = household['annual_hhinc_group'].map(annual_encode)
 household['weekly_hhinc_group'] = household['weekly_hhinc_group'].map(weekly_encode)
+
+weight_columns = ['hhpoststratweight', 'hhpoststratweight_GROUP_1' , 'hhpoststratweight_GROUP_2',
+                'hhpoststratweight_GROUP_3', 'hhpoststratweight_GROUP_4',	
+                'hhpoststratweight_GROUP_5', 'hhpoststratweight_GROUP_6',
+                'hhpoststratweight_GROUP_7', 'hhpoststratweight_GROUP_8',
+                'hhpoststratweight_GROUP_9', 'hhpoststratweight_GROUP_10']
+
+
+# Second dataframe to hold household weights
+household_weights = household[weight_columns]
+household = household.drop(columns=weight_columns)
+
+print(household[['dwelltype', 'owndwell']].drop_duplicates())
+
