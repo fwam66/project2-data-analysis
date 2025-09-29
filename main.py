@@ -45,5 +45,5 @@ weight_columns = ['hhpoststratweight', 'hhpoststratweight_GROUP_1' , 'hhpoststra
 household_weights = household[weight_columns]
 household = household.drop(columns=weight_columns)
 
-print(household[['dwelltype', 'owndwell']].drop_duplicates())
-
+household.to_csv('cleaned_household_vista.csv')
+household_weights.to_csv('cleaned_household_weights_vista.csv', index =False)
