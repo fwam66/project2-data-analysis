@@ -10,29 +10,33 @@ merged_data["cumdist"] = pd.to_numeric(merged_data["cumdist"],errors="coerce")
 
 merged_data = merged_data.dropna(subset=["duration","cumdist"])
 
+#continuous variables 
+x_cont = merged_data["duration"]
+y_cont = merged_data["cumdist"]
+
 #bins for heatmap, adjust if needed
 bins = 10
 
 x_bin = pd.qcut(merged_data["duration"], q=bins, duplicates="drop")
 y_bin = pd.qcut(merged_data["cumdist"], q=bins, duplicates="drop")
 
-#change categorical data into numbers
-x = merged_data["duration"].astype("category").cat.codes
-y = merged_data["cumdist"].astype("category").cat.codes
+#change bins into numbers for nmi
+x_disc = merged_data["duration"].astype("category").cat.codes
+y_disc = merged_data["cumdist"].astype("category").cat.codes
 
 plot_df = pd.DataFrame({"duration":x_bin, "cumdist":y_bin})
 
 #pearson correlation
-pearson_corr = x.corr(y, method="pearson")
+pearson_corr = x_cont.corr(y_cont, method="pearson")
 print("Pearson Correlation:", pearson_corr)
 
 #normalized mutual information
-nmi = normalized_mutual_info_score(x, y, average_method="min")
+nmi = normalized_mutual_info_score(x_disc, y_disc, average_method="min")
 print("Normalized Mutual Information:", nmi)
 
-#scatterplot of pearson - looks like a mess bcz data is discrete
+#scatterplot of pearson
 plt.figure(figsize=(10,6))
-plt.scatter(x, y, alpha=0.5)
+plt.scatter(x_cont, y_cont, alpha=0.5)
 plt.title("Scatterplot of Duration and Cummulative Distance")
 plt.xlabel("Duration")
 plt.ylabel("Cummulative Distance")
@@ -46,3 +50,4 @@ plt.title("Heatmap of Duration and Cummulative Distance")
 plt.xlabel("Duration")
 plt.ylabel("Cummulative Distance")
 plt.show()
+
