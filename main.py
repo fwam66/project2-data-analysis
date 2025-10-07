@@ -9,7 +9,12 @@ household = household[household['hhinc_group'].notna()]
 household = household.drop(columns = [
         'surveyperiod', 'hhsize', 'dwelltype', 'owndwell', 'totalbikes',
         'travmonth', 'travdow', 'youngestgroup_5', 'aveagegroup_5', 
-        'oldestgroup_5', 'homesubregion_ASGS', 'homeregion_ASGS', 'dayType'
+        'oldestgroup_5', 'homesubregion_ASGS', 'homeregion_ASGS', 'dayType',
+        'hhpoststratweight_GROUP_1' , 'hhpoststratweight_GROUP_2',
+        'hhpoststratweight_GROUP_3', 'hhpoststratweight_GROUP_4',	
+        'hhpoststratweight_GROUP_5', 'hhpoststratweight_GROUP_6',
+        'hhpoststratweight_GROUP_7', 'hhpoststratweight_GROUP_8',
+        'hhpoststratweight_GROUP_9', 'hhpoststratweight_GROUP_10'
         ])
 
 trips = trips.drop(columns = [
@@ -18,7 +23,12 @@ trips = trips.drop(columns = [
         'origpurp2', 'destplace2', 'destpurp2', 'time1', 'time2', 
         'time3', 'time4', 'time5', 'time6', 'time7', 'time8', 'time9', 
         'homesubregion_ASGS', 'homeregion_ASGS', 'destpurp1', 'destplace1', 
-        'origpurp1', 'origplace1', 'origlga', 'destlga', 'travtime', 'duration'
+        'origpurp1', 'origplace1', 'origlga', 'destlga', 'travtime', 'duration',
+        'trippoststratweight_GROUP_1' , 'trippoststratweight_GROUP_2',
+        'trippoststratweight_GROUP_3', 'trippoststratweight_GROUP_4',	
+        'trippoststratweight_GROUP_5', 'trippoststratweight_GROUP_6',
+        'trippoststratweight_GROUP_7', 'trippoststratweight_GROUP_8',
+        'trippoststratweight_GROUP_9', 'trippoststratweight_GROUP_10'   
         ])
 
 ## Feature Engineering ##   
@@ -96,36 +106,11 @@ annual_encode = {
 household['annual_hhinc_group'] = household['annual_hhinc_group'].map(annual_encode)
 household['weekly_hhinc_group'] = household['weekly_hhinc_group'].map(weekly_encode)
 
-household_weight_columns = [
-    'hhpoststratweight', 'hhpoststratweight_GROUP_1' , 'hhpoststratweight_GROUP_2',
-    'hhpoststratweight_GROUP_3', 'hhpoststratweight_GROUP_4',	
-    'hhpoststratweight_GROUP_5', 'hhpoststratweight_GROUP_6',
-    'hhpoststratweight_GROUP_7', 'hhpoststratweight_GROUP_8',
-    'hhpoststratweight_GROUP_9', 'hhpoststratweight_GROUP_10'
-    ]
-
-trip_weight_columns = [
-    'trippoststratweight', 'trippoststratweight_GROUP_1' , 'trippoststratweight_GROUP_2',
-    'trippoststratweight_GROUP_3', 'trippoststratweight_GROUP_4',	
-    'trippoststratweight_GROUP_5', 'trippoststratweight_GROUP_6',
-    'trippoststratweight_GROUP_7', 'trippoststratweight_GROUP_8',
-    'trippoststratweight_GROUP_9', 'trippoststratweight_GROUP_10'   
-    ]
-
-
-# Second dataframe to hold household and trip weights
-household_weights = household[household_weight_columns]
-household = household.drop(columns=household_weight_columns)
-
-trip_weights = trips[trip_weight_columns]
-trips = trips.drop(columns=trip_weight_columns)
 
 
 # Write cleaned data into CSV format
 household.to_csv('cleaned_household.csv')
-household_weights.to_csv('cleaned_household_weights.csv')
 trips.to_csv('cleaned_trips.csv')
-trip_weights.to_csv('cleaned_trips_weights.csv')
 
 # Merge the two datasets on household ID
 merged_data = pd.merge(trips, household, on='hhid', how = 'left')
@@ -134,5 +119,4 @@ merged_data = pd.merge(trips, household, on='hhid', how = 'left')
 merged_data = merged_data[merged_data['weekly_hhinc_group'].notna()]
 merged_data['weekly_hhinc_group'] = merged_data['weekly_hhinc_group'].apply(int)
 merged_data['annual_hhinc_group'] = merged_data['annual_hhinc_group'].apply(int)
-
 merged_data.to_csv('merged_data.csv', index = False)

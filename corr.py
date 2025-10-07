@@ -6,21 +6,7 @@ from sklearn.metrics import normalized_mutual_info_score
 
 
 #load and merge all the data
-household = pd.read_csv("cleaned_household.csv")
-household_weights = pd.read_csv("cleaned_household_weights.csv")
-trips = pd.read_csv("cleaned_trips.csv")
-trip_weights = pd.read_csv("cleaned_trips_weights.csv")
-
-household = household.merge(household_weights[["hhid", "hhpoststratweight"]], on="hhid", how="left")
-
-merged_data = trips.merge(household, on="hhid", how="left")
-
-merged_data = merged_data.merge(trip_weights[["tripid","trippoststratweight"]], on="tripid", how="left")
-
-merged_data["hhpoststratweight"] = merged_data["hhpoststratweight"].fillna(1)
-merged_data["trippoststratweight"] = merged_data["trippoststratweight"].fillna(1)
-
-merged_data.to_csv('merged_data.csv', index = False)
+merged_data = pd.read_csv("merged_data.csv")
 
 #categorical data
 merged_data["weekly_hhinc_group"] = merged_data["weekly_hhinc_group"].astype("category")
