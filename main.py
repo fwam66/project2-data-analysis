@@ -6,18 +6,22 @@ trips = pd.read_csv('trips_vista_2023_2024.csv', index_col = 0)
 ## Data Cleaning ##
 # Removes missing data and data that won't contribute to analysis
 household = household[household['hhinc_group'].notna()]
-household = household.drop(columns = ['surveyperiod'])
+household = household.drop(columns = [
+        'surveyperiod', 'hhsize', 'dwelltype', 'owndwell', 'totalbikes',
+        'travmonth', 'travdow', 'youngestgroup_5', 'aveagegroup_5', 
+        'oldestgroup_5', 'homesubregion_ASGS', 'homeregion_ASGS', 'dayType'
+        ])
 
 trips = trips.drop(columns = [
         'tripno', 'linkmode', 'dist1', 'dist2', 'dist3','dist4', 
-        'dist5', 'dist6', 'dist7', 'dist8', 'dist9', 'starthour', 
-        'arrhour', 'origplace2', 'origpurp2', 'destplace2', 'destpurp2',
-        'time1', 'time2', 'time3', 'time4', 'time5', 'time6', 'time7',
-        'time8', 'time9', 'homesubregion_ASGS', 'homeregion_ASGS', 'destpurp1',
-        'destplace1', 'origpurp1', 'origplace1', 'dayType'
+        'dist5', 'dist6', 'dist7', 'dist8', 'dist9', 'origplace2', 
+        'origpurp2', 'destplace2', 'destpurp2', 'time1', 'time2', 
+        'time3', 'time4', 'time5', 'time6', 'time7', 'time8', 'time9', 
+        'homesubregion_ASGS', 'homeregion_ASGS', 'destpurp1', 'destplace1', 
+        'origpurp1', 'origplace1', 'origlga', 'destlga', 'travtime', 'duration'
         ])
 
-## Feature Engineering ##
+## Feature Engineering ##   
 # Split hhinc columns into Weekly and Annual income (easier to read and understand)
 household[['weekly_hhinc_group', 'annual_hhinc_group']] = household['hhinc_group'].str.split('(', n=1, expand=True)
 household['annual_hhinc_group'] = household['annual_hhinc_group'].str.strip('()')
@@ -52,6 +56,19 @@ def find_main_mode(row):
 
 trips['mainmode'] = trips[mode_columns].apply(find_main_mode, axis=1)
 trips = trips.drop(columns=mode_columns)
+
+# Categorise trip's purpose as either Work, Education, Recreational or Other
+purp_map = {
+    'Buy Something': 'Recreational', 'Social': 'Recreational',
+    'Work Related': 'Work', 'Personal Business': 'Work',
+    'Pick-up or Drop-off Someone': 'Recreational', 'Recreational': 'Recreational', 
+    'Education': 'Education', 'Unknown Purpose (at start of day)': 'Other',
+    'Unknown Purpose (at start of day)': 'Other', 'Accompany Someone': 'Recreational', 
+    'Other Purpose': 'Other', 'Pick-up or Deliver Something': 'Recreational', 
+    'Change Mode': 'Other', 'At Home': 'Other'
+    }
+
+trips['trippurp'] = trips['trippurp'].map(purp_map)
 
 
 ## Encoding ##
@@ -119,3 +136,4 @@ merged_data['weekly_hhinc_group'] = merged_data['weekly_hhinc_group'].apply(int)
 merged_data['annual_hhinc_group'] = merged_data['annual_hhinc_group'].apply(int)
 
 merged_data.to_csv('merged_data.csv', index = False)
+
