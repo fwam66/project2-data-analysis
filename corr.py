@@ -14,6 +14,7 @@ trip_weights = pd.read_csv("cleaned_trips_weights.csv")
 household = household.merge(household_weights[["hhid", "hhpoststratweight"]], on="hhid", how="left")
 
 merged_data = trips.merge(household, on="hhid", how="left")
+
 merged_data = merged_data.merge(trip_weights[["tripid","trippoststratweight"]], on="tripid", how="left")
 
 merged_data["hhpoststratweight"] = merged_data["hhpoststratweight"].fillna(1)
@@ -22,8 +23,8 @@ merged_data["trippoststratweight"] = merged_data["trippoststratweight"].fillna(1
 #categorical data
 merged_data["weekly_hhinc_group"] = merged_data["weekly_hhinc_group"].astype("category")
 merged_data["homelga"] = merged_data["homelga"].astype("category")
-merged_data["mainmode"] = merged_data["mainmode"].astype("category")
 merged_data["trippurp"] = merged_data["trippurp"].astype("category")
+merged_data["mainmode"] = merged_data["mainmode"].astype("category")
 
 
 #numerical data
@@ -92,17 +93,23 @@ bins = 10
 merged_data["binned_totalvehs"] = pd.cut(merged_data["totalvehs"], bins=bins)
 merged_data["binned_duration"] = pd.cut(merged_data["duration"], bins=bins)
 merged_data["binned_cumdist"] = pd.cut(merged_data["cumdist"], bins=bins)
+merged_data["binned_trippurp"] = merged_data["trippurp"].cat.codes
+merged_data["binned_mainmode"] = merged_data["mainmode"].cat.codes
 
 
 print("Income Group Raw Data - NMI")
 print("Income vs Vehicles:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_totalvehs"]))
 print("Income vs Duration:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_duration"]))
 print("Income vs Trip Distance:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_cumdist"]))
+print("Income vs Trip Purpose:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_trippurp"]))
+print("Income vs Main Mode:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_mainmode"]))
 
 print("LGA Group Raw Data - NMI")
 print("LGA vs Vehicles:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_totalvehs"]))
 print("LGA vs Duration:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_duration"]))
 print("LGA vs Trip Distance:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_cumdist"]))
+print("LGA vs Trip Purpose:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_trippurp"]))
+print("LGA vs Main Mode:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_mainmode"]))
 
 #scatterplots for pearson correlations
 pearson_pairs_income = [
@@ -138,10 +145,14 @@ nmi_cols = ["binned_totalvehs", "binned_duration", "binned_cumdist"]
 heatmap_inc_vehs = pd.crosstab(merged_data["weekly_hhinc_group"], merged_data["binned_totalvehs"])
 heatmap_inc_dur = pd.crosstab(merged_data["weekly_hhinc_group"], merged_data["binned_duration"])
 heatmap_inc_dist = pd.crosstab(merged_data["weekly_hhinc_group"], merged_data["binned_cumdist"])
+heatmap_inc_purp = pd.crosstab(merged_data["weekly_hhinc_group"], merged_data["trippurp"])
+heatmap_inc_mode = pd.crosstab(merged_data["weekly_hhinc_group"], merged_data["mainmode"])
 
 heatmap_lga_vehs = pd.crosstab(merged_data["homelga"], merged_data["binned_totalvehs"])
 heatmap_lga_dur = pd.crosstab(merged_data["homelga"], merged_data["binned_duration"])
 heatmap_lga_dist = pd.crosstab(merged_data["homelga"], merged_data["binned_cumdist"])
+heatmap_lga_purp = pd.crosstab(merged_data["homelga"], merged_data["trippurp"])
+heatmap_lga_mode = pd.crosstab(merged_data["homelga"], merged_data["mainmode"])
 
 plt.figure(figsize=(12,8))
 sns.heatmap(heatmap_inc_vehs, annot=True, fmt="d")
@@ -164,6 +175,21 @@ plt.xlabel("Trip Distance")
 plt.ylabel("Income Group")
 plt.show()
 
+plt.figure(figsize=(12,8))
+sns.heatmap(heatmap_inc_purp, annot=True, fmt="d")
+plt.title("Income Group vs Trip Purpose")
+plt.xlabel("Trip Purpose")
+plt.ylabel("Income Group")
+plt.show()
+
+plt.figure(figsize=(12,8))
+sns.heatmap(heatmap_inc_mode, annot=True, fmt="d")
+plt.title("Income Group vs Main Mode")
+plt.xlabel("Main Mode")
+plt.ylabel("Income Group")
+plt.show()
+
+
 plt.figure(figsize=(16,8))
 sns.heatmap(heatmap_lga_vehs, annot=True, fmt="d")
 plt.title("LGA Group vs Vehicles")
@@ -182,6 +208,20 @@ plt.figure(figsize=(16,8))
 sns.heatmap(heatmap_lga_dist, annot=True, fmt="d")
 plt.title("LGA Group vs Trip Distance")
 plt.xlabel("Trip Distance")
+plt.ylabel("LGA Group")
+plt.show()
+
+plt.figure(figsize=(16,8))
+sns.heatmap(heatmap_lga_purp, annot=True, fmt="d")
+plt.title("LGA Group vs Trip Purpose")
+plt.xlabel("Trip Purpose")
+plt.ylabel("LGA Group")
+plt.show()
+
+plt.figure(figsize=(16,8))
+sns.heatmap(heatmap_lga_mode, annot=True, fmt="d")
+plt.title("LGA Group vs Main Mode")
+plt.xlabel("Main Mode")
 plt.ylabel("LGA Group")
 plt.show()
 
