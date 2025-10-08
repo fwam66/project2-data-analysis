@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import normalized_mutual_info_score
@@ -84,20 +83,21 @@ merged_data["binned_cumdist"] = pd.cut(merged_data["cumdist"], bins=bins)
 merged_data["binned_trippurp"] = merged_data["trippurp"].cat.codes
 merged_data["binned_mainmode"] = merged_data["mainmode"].cat.codes
 
-
+# we use average_method = min here because in NMI, we want to have our demoninator
+# to be min(H(X), H(Y))
 print("Income Group Raw Data - NMI")
-print("Income vs Vehicles:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_totalvehs"]))
-print("Income vs Trip Time:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_triptime"]))
-print("Income vs Trip Distance:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_cumdist"]))
-print("Income vs Trip Purpose:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_trippurp"]))
-print("Income vs Main Mode:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_mainmode"]))
+print("Income vs Vehicles:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_totalvehs"], average_method='min'))
+print("Income vs Trip Time:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_triptime"], average_method='min'))
+print("Income vs Trip Distance:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_cumdist"], average_method='min'))
+print("Income vs Trip Purpose:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_trippurp"], average_method='min'))
+print("Income vs Main Mode:", normalized_mutual_info_score(merged_data["weekly_hhinc_group"], merged_data["binned_mainmode"], average_method='min'))
 
 print("LGA Group Raw Data - NMI")
-print("LGA vs Vehicles:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_totalvehs"]))
-print("LGA vs Trip Time:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_triptime"]))
-print("LGA vs Trip Distance:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_cumdist"]))
-print("LGA vs Trip Purpose:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_trippurp"]))
-print("LGA vs Main Mode:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_mainmode"]))
+print("LGA vs Vehicles:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_totalvehs"], average_method='min'))
+print("LGA vs Trip Time:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_triptime"], average_method='min'))
+print("LGA vs Trip Distance:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_cumdist"], average_method='min'))
+print("LGA vs Trip Purpose:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_trippurp"], average_method='min'))
+print("LGA vs Main Mode:", normalized_mutual_info_score(merged_data["homelga"], merged_data["binned_mainmode"], average_method='min'))
 
 #scatterplots for pearson correlations
 pearson_pairs_income = [
