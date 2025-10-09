@@ -51,7 +51,7 @@ print(balanced_df['mainmode'].value_counts())
 # =========================================================
 # (A) CLASSIFICATION: mainmode (Group-aware split by hhid)
 # =========================================================
-cls_df = df.dropna(subset=["mainmode"]).copy()
+cls_df = balanced_df.dropna(subset=["mainmode"]).copy()
 y_cls = cls_df["mainmode"].astype(str).values
 idx   = np.arange(len(cls_df))
 
@@ -73,7 +73,7 @@ print("[CLASSIFICATION] Class % in TEST:\n",
 # ======================================================
 # (B) REGRESSION: triptime (Group-aware split by hhid)
 # ======================================================
-reg_df = df.dropna(subset=["triptime", GROUP_COL]).copy()
+reg_df = balanced_df.dropna(subset=["triptime", GROUP_COL]).copy()
 reg_df["triptime"] = pd.to_numeric(reg_df["triptime"], errors="coerce")
 reg_df = reg_df.dropna(subset=["triptime"])
 
