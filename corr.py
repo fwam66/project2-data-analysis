@@ -84,9 +84,9 @@ print("Vehicle vs Trip Distance:",lga_mean["weighted_totalvehs"].corr(lga_mean["
 # bin number can be adjusted, just using 10 because max vehicles is 10
 bins = 10
 
-merged_data["binned_totalvehs"] = pd.cut(merged_data["totalvehs"], bins=bins)
-merged_data["binned_triptime"] = pd.cut(merged_data["triptime"], bins=bins)
-merged_data["binned_cumdist"] = pd.cut(merged_data["cumdist"], bins=bins)
+merged_data["binned_totalvehs"] = pd.qcut(merged_data["totalvehs"], q=bins, duplicates="drop")
+merged_data["binned_triptime"] = pd.qcut(merged_data["triptime"], q=bins, duplicates="drop")
+merged_data["binned_cumdist"] = pd.qcut(merged_data["cumdist"], q=bins, duplicates="drop")
 merged_data["binned_trippurp"] = merged_data["trippurp"].cat.codes
 merged_data["binned_mainmode"] = merged_data["mainmode"].cat.codes
 
@@ -157,6 +157,7 @@ heatmap_lga_purp = pd.crosstab(merged_data["homelga"], merged_data["trippurp"],n
 heatmap_lga_mode = pd.crosstab(merged_data["homelga"], merged_data["mainmode"],normalize="index")
 
 plt.figure(figsize=(12,8))
+heatmap_inc_vehs = heatmap_inc_vehs.iloc[::-1]
 sns.heatmap(heatmap_inc_vehs, annot=True, fmt=".2f")
 plt.title("Income Group vs Vehicles")
 plt.xlabel("Vehicles")
@@ -164,6 +165,7 @@ plt.ylabel("Income Group")
 plt.show()
 
 plt.figure(figsize=(12,8))
+heatmap_inc_dur = heatmap_inc_dur.iloc[::-1]
 sns.heatmap(heatmap_inc_dur, annot=True, fmt=".2f")
 plt.title("Income Group vs Trip Time")
 plt.xlabel("Trip Time")
@@ -171,6 +173,7 @@ plt.ylabel("Income Group")
 plt.show()
 
 plt.figure(figsize=(12,8))
+heatmap_inc_dist = heatmap_inc_dist.iloc[::-1]
 sns.heatmap(heatmap_inc_dist, annot=True, fmt=".2f")
 plt.title("Income Group vs Trip Distance")
 plt.xlabel("Trip Distance")
@@ -178,6 +181,7 @@ plt.ylabel("Income Group")
 plt.show()
 
 plt.figure(figsize=(12,8))
+heatmap_inc_purp = heatmap_inc_purp.iloc[::-1]
 sns.heatmap(heatmap_inc_purp, annot=True, fmt=".2f")
 plt.title("Income Group vs Trip Purpose")
 plt.xlabel("Trip Purpose")
@@ -185,6 +189,7 @@ plt.ylabel("Income Group")
 plt.show()
 
 plt.figure(figsize=(12,8))
+heatmap_inc_mode = heatmap_inc_mode.iloc[::-1]
 sns.heatmap(heatmap_inc_mode, annot=True, fmt=".2f")
 plt.title("Income Group vs Main Mode")
 plt.xlabel("Main Mode")
