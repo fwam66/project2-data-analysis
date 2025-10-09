@@ -3,8 +3,6 @@ import pandas as pd
 household = pd.read_csv('household_vista_2023_2024.csv', index_col = 0)
 trips = pd.read_csv('trips_vista_2023_2024.csv', index_col = 0)
 
-print(len(household['homelga'].unique()))
-
 ## Data Cleaning ##
 # Removes missing data and data that won't contribute to analysis
 household_na = household[household['hhinc_group'].isna()]
@@ -84,9 +82,16 @@ purp_map = {
 trips['trippurp'] = trips['trippurp'].map(purp_map)
 
 # Categorise LGA as either City or Shire
-print(household['homelga'].unique())
-print(household['homelga'].unique())
-print(household['homelga'].unique())
+
+household['homelga'] = household['homelga'].str.split(' ').str[-1]
+def define_lga(row):
+    if row['homelga'] == '(C)':
+        row['homelga'] = 'City'
+    else:
+        row['homelga'] = 'Shire'
+    return row
+household = household.apply(define_lga, axis=1)
+
 
 ## Encoding ##
 # Label encode income groups
@@ -114,7 +119,6 @@ household['annual_hhinc_group'] = household['annual_hhinc_group'].map(annual_enc
 household['weekly_hhinc_group'] = household['weekly_hhinc_group'].map(weekly_encode)
 
 
-
 # Write cleaned data into CSV format
 household.to_csv('cleaned_household.csv')
 trips.to_csv('cleaned_trips.csv')
@@ -127,5 +131,3 @@ merged_data = merged_data[merged_data['weekly_hhinc_group'].notna()]
 merged_data['weekly_hhinc_group'] = merged_data['weekly_hhinc_group'].apply(int)
 merged_data['annual_hhinc_group'] = merged_data['annual_hhinc_group'].apply(int)
 merged_data.to_csv('merged_data.csv', index = False)
-
-print(len(merged_data['homelga'].unique()))
