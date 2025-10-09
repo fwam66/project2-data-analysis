@@ -3,8 +3,11 @@ import pandas as pd
 household = pd.read_csv('household_vista_2023_2024.csv', index_col = 0)
 trips = pd.read_csv('trips_vista_2023_2024.csv', index_col = 0)
 
+print(len(household['homelga'].unique()))
+
 ## Data Cleaning ##
 # Removes missing data and data that won't contribute to analysis
+household_na = household[household['hhinc_group'].isna()]
 household = household[household['hhinc_group'].notna()]
 household = household.drop(columns = [
         'surveyperiod', 'hhsize', 'dwelltype', 'owndwell', 'totalbikes',
@@ -31,7 +34,7 @@ trips = trips.drop(columns = [
         'trippoststratweight_GROUP_9', 'trippoststratweight_GROUP_10'   
         ])
 
-## Feature Engineering ##   
+## Feature Engineering ##
 # Split hhinc columns into Weekly and Annual income (easier to read and understand)
 household[['weekly_hhinc_group', 'annual_hhinc_group']] = household['hhinc_group'].str.split('(', n=1, expand=True)
 household['annual_hhinc_group'] = household['annual_hhinc_group'].str.strip('()')
@@ -44,8 +47,8 @@ mode_map = {
     'Walking' : "Active", 'Bicycle' : "Active", 'School Bus' : 'Public',
     'Rideshare Service' : 'Hired', 'Motorcycle': 'Private', 'Plane' : 'Other', 
     'Taxi': 'Hired', 'Other': 'Other', 'Running/jogging' : "Active",
-    'Mobility Scooter': 'Private', 'Tram':'Public', 'e-Scooter': "Active", 
-    'Public Bus':'Public', 'Train':'Public'
+    'Mobility Scooter': 'Private', 'Tram': 'Public', 'e-Scooter': "Active", 
+    'Public Bus': 'Public', 'Train': 'Public'
     }
 
 mode_columns = [
@@ -80,6 +83,10 @@ purp_map = {
 
 trips['trippurp'] = trips['trippurp'].map(purp_map)
 
+# Categorise LGA as either City or Shire
+print(household['homelga'].unique())
+print(household['homelga'].unique())
+print(household['homelga'].unique())
 
 ## Encoding ##
 # Label encode income groups
@@ -120,3 +127,5 @@ merged_data = merged_data[merged_data['weekly_hhinc_group'].notna()]
 merged_data['weekly_hhinc_group'] = merged_data['weekly_hhinc_group'].apply(int)
 merged_data['annual_hhinc_group'] = merged_data['annual_hhinc_group'].apply(int)
 merged_data.to_csv('merged_data.csv', index = False)
+
+print(len(merged_data['homelga'].unique()))

@@ -29,6 +29,25 @@ df = pd.read_csv(INPUT_FILE)
 if GROUP_COL not in df.columns:
     raise ValueError(f"Group column '{GROUP_COL}' not found in {INPUT_FILE}")
 
+print(df['mainmode'].value_counts())
+num_active_mode = (df['mainmode'] == 'Active').sum()
+print(num_active_mode)
+
+subsample_private = df[df['mainmode'] == 'Private'].sample(n=num_active_mode, random_state=20008)     
+subsample_public = df[df['mainmode'] == 'Public'].sample(n=num_active_mode, replace=True, random_state=20008)   
+subsample_hired = df[df['mainmode'] == 'Hired'].sample(n=num_active_mode, replace=True, random_state=20008)   
+subsample_other = df[df['mainmode'] == 'Other'].sample(n=num_active_mode, replace=True, random_state=20008)   
+
+balanced_df = df[df['mainmode'] == 'Active']
+balanced_df = pd.concat([
+    balanced_df, subsample_hired, subsample_other, 
+    subsample_private, subsample_public
+    ])
+
+print(balanced_df['mainmode'].value_counts())
+
+
+
 # =========================================================
 # (A) CLASSIFICATION: mainmode (Group-aware split by hhid)
 # =========================================================
