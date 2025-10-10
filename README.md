@@ -1,8 +1,12 @@
-# project2-data-analysis
-What distinct household travel-behaviour profiles exist in the dataset VISTA, and how do these profiles differ by household context and home region, and between weekday and weekend? 
+# Data Pre-processing
+python main.py
 
-Distinct household travel-behaviour profiles: public/private, trip duration categorised, number of stops, SHORT VS LONG TRIPS, trip purpose
+# Correlation
+python corr.py
 
-Household contexts, home region: LGA, age, income, size of hh, dwelling type and owned, totalbikes
-
-Weekday and weekend 
+# Supervised Learning
+Use these commands in order
+python split_train_test.py
+python classification_train_balanced.py
+python train_mainmode.py
+python train_traveltime.py
