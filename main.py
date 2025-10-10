@@ -131,4 +131,3 @@ merged_data['weekly_hhinc_group'] = merged_data['weekly_hhinc_group'].apply(int)
 merged_data['annual_hhinc_group'] = merged_data['annual_hhinc_group'].apply(int)
 merged_data.to_csv('merged_data.csv', index = False)
 
-print(merged_data['homelga'].value_counts())
