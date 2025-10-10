@@ -13,11 +13,9 @@ from sklearn.pipeline import Pipeline          # <-- FIX: import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-INPUT_DIR = "outputs"
-TRAIN_CSV = os.path.join(INPUT_DIR, "regression_train.csv")
-TEST_CSV  = os.path.join(INPUT_DIR, "regression_test.csv")
-OUT_DIR   = "outputs"
-os.makedirs(OUT_DIR, exist_ok=True)
+TRAIN_CSV = os.path.join("outputs", "regression_train.csv")
+TEST_CSV  = os.path.join("outputs", "regression_test.csv")
+os.makedirs("outputs", exist_ok=True)
 
 # -----------------------
 # Load & basic casting
@@ -26,7 +24,7 @@ train = pd.read_csv(TRAIN_CSV)
 test  = pd.read_csv(TEST_CSV)
 
 target = "triptime"
-num_common = ["weekly_hhinc_group", "starthour", "arrhour", "totalvehs"]
+num_common = ["weekly_hhinc_group", "starthour", "totalvehs"]
 cat_feats  = ["homelga", "dayType"]
 
 for c in num_common + ["cumdist", target]:
@@ -37,7 +35,7 @@ train = train.dropna(subset=[target]).copy()
 test  = test.dropna(subset=[target]).copy()
 
 # ============================================================
-# WITH distance (cumdist)
+# With distance (cumdist)
 # ============================================================
 num_feats_wd = [c for c in (num_common + ["cumdist"]) if c in train.columns]
 cat_feats_wd = [c for c in cat_feats if c in train.columns]
@@ -66,7 +64,7 @@ mae  = mean_absolute_error(y_test, pred_wd)
 mse  = mean_squared_error(y_test, pred_wd)
 rmse = np.sqrt(mse)
 r2   = r2_score(y_test, pred_wd)
-print(f"\n[B1_with_distance] LinearRegression  MAE={mae:.3f}  RMSE={rmse:.3f}  R2={r2:.3f}")
+print(f"\n[with_distance] LinearRegression  MAE={mae:.3f}  RMSE={rmse:.3f}  R2={r2:.3f}")
 
 plt.figure()
 plt.scatter(y_test, pred_wd, s=8, alpha=0.6)
@@ -74,13 +72,13 @@ lo, hi = np.nanmin([y_test.min(), pred_wd.min()]), np.nanmax([y_test.max(), pred
 plt.plot([lo, hi], [lo, hi])
 plt.xlabel("Actual triptime (min)")
 plt.ylabel("Predicted triptime (min)")
-plt.title("LinearRegression (with distance): Predicted vs Actual")
+plt.title("Linear Regression (with cumulative distance)")
 plt.tight_layout()
-plt.savefig(os.path.join(OUT_DIR, "B1_with_distance_LinearRegression_pred_vs_actual.png"), dpi=200)
+plt.savefig(os.path.join("outputs", "Linear_Regression_with_distance.png"), dpi=200)
 plt.close()
 
 # ============================================================
-# NO distance (remove cumdist to isolate income/LGA effects)
+# Without distance (no cumdist)
 # ============================================================
 num_feats_nd = [c for c in num_common if c in train.columns]
 cat_feats_nd = [c for c in cat_feats if c in train.columns]
@@ -110,8 +108,7 @@ mae  = mean_absolute_error(y_test, pred_nd)
 mse  = mean_squared_error(y_test, pred_nd)
 rmse = np.sqrt(mse)
 r2   = r2_score(y_test, pred_nd)
-print(f"[B2_no_distance]   LinearRegression  MAE={mae:.3f}  RMSE={rmse:.3f}  R2={r2:.3f}")
-
+print(f"[without_distance]   LinearRegression  MAE={mae:.3f}  RMSE={rmse:.3f}  R2={r2:.3f}")
 
 plt.figure()
 plt.scatter(y_test, pred_nd, s=8, alpha=0.6)
@@ -119,9 +116,7 @@ lo, hi = np.nanmin([y_test.min(), pred_nd.min()]), np.nanmax([y_test.max(), pred
 plt.plot([lo, hi], [lo, hi])
 plt.xlabel("Actual triptime (min)")
 plt.ylabel("Predicted triptime (min)")
-plt.title("LinearRegression: Predicted vs Actual")
+plt.title("Linear Regression")
 plt.tight_layout()
-plt.savefig(os.path.join(OUT_DIR, "B2_no_distance_LinearRegression_pred_vs_actual.png"), dpi=200)
+plt.savefig(os.path.join("outputs", "Linear_Regression.png"), dpi=200)
 plt.close()
-
-print("\nSaved plots in ./outputs/")

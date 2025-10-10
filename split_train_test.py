@@ -14,12 +14,11 @@ from sklearn.model_selection import StratifiedShuffleSplit
 # Params (tweak here)
 # --------------------
 INPUT_FILE   = "merged_data.csv"
-OUTPUT_DIR   = "outputs"
 TEST_SIZE    = 0.20
 RANDOM_STATE = 42
 GROUP_COL    = "hhid"   # grouping by household
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs("outputs", exist_ok=True)
 
 # -------------
 # Load once
@@ -29,29 +28,10 @@ df = pd.read_csv(INPUT_FILE)
 if GROUP_COL not in df.columns:
     raise ValueError(f"Group column '{GROUP_COL}' not found in {INPUT_FILE}")
 
-print(df['mainmode'].value_counts())
-num_active_mode = (df['mainmode'] == 'Active').sum()
-print(num_active_mode)
-
-subsample_private = df[df['mainmode'] == 'Private'].sample(n=num_active_mode, random_state=20008)     
-subsample_public = df[df['mainmode'] == 'Public'].sample(n=num_active_mode, replace=True, random_state=20008)   
-subsample_hired = df[df['mainmode'] == 'Hired'].sample(n=num_active_mode, replace=True, random_state=20008)   
-subsample_other = df[df['mainmode'] == 'Other'].sample(n=num_active_mode, replace=True, random_state=20008)   
-
-balanced_df = df[df['mainmode'] == 'Active']
-balanced_df = pd.concat([
-    balanced_df, subsample_hired, subsample_other, 
-    subsample_private, subsample_public
-    ])
-
-print(balanced_df['mainmode'].value_counts())
-
-
-
 # =========================================================
-# (A) CLASSIFICATION: mainmode (Group-aware split by hhid)
+# (A) CLASSIFICATION: mainmode
 # =========================================================
-cls_df = balanced_df.dropna(subset=["mainmode"]).copy()
+cls_df = df.dropna(subset=["mainmode"]).copy()
 y_cls = cls_df["mainmode"].astype(str).values
 idx   = np.arange(len(cls_df))
 
@@ -60,9 +40,20 @@ tr_idx, te_idx = next(sss.split(idx, y_cls))
 
 cls_train = cls_df.iloc[tr_idx].copy()
 cls_test  = cls_df.iloc[te_idx].copy()
+'''
+subsample_hired = df[df['mainmode'] == 'Hired'].sample(n=0, replace=True, random_state=20008)   
+subsample_other = df[df['mainmode'] == 'Other'].sample(n=0, replace=True, random_state=20008)   
 
-cls_train.to_csv(os.path.join(OUTPUT_DIR, "classification_train.csv"), index=False)
-cls_test.to_csv(os.path.join(OUTPUT_DIR, "classification_test.csv"), index=False)
+balanced_df = cls_test[(cls_test['mainmode'] != 'Hired') | (cls_test['mainmode'] != 'Other')]
+balanced_df = pd.concat([
+    balanced_df, subsample_hired, subsample_other, 
+    ])
+'''
+
+print(cls_test['mainmode'].value_counts())
+
+cls_train.to_csv(os.path.join("outputs", "classification_train.csv"), index=False)
+cls_test.to_csv(os.path.join("outputs", "classification_test.csv"), index=False)
 
 print("[CLASSIFICATION] Splitter: StratifiedShuffleSplit")
 print("[CLASSIFICATION] Class % in TRAIN:\n",
@@ -73,7 +64,7 @@ print("[CLASSIFICATION] Class % in TEST:\n",
 # ======================================================
 # (B) REGRESSION: triptime (Group-aware split by hhid)
 # ======================================================
-reg_df = balanced_df.dropna(subset=["triptime", GROUP_COL]).copy()
+reg_df = df.dropna(subset=["triptime", GROUP_COL]).copy()
 reg_df["triptime"] = pd.to_numeric(reg_df["triptime"], errors="coerce")
 reg_df = reg_df.dropna(subset=["triptime"])
 
@@ -86,12 +77,12 @@ tr_idx_reg, te_idx_reg = next(gss_reg.split(idx_reg, groups=groups_reg))
 reg_train = reg_df.iloc[tr_idx_reg].copy()
 reg_test  = reg_df.iloc[te_idx_reg].copy()
 
-reg_train.to_csv(os.path.join(OUTPUT_DIR, "regression_train.csv"), index=False)
-reg_test.to_csv(os.path.join(OUTPUT_DIR, "regression_test.csv"), index=False)
+reg_train.to_csv(os.path.join("outputs", "regression_train.csv"), index=False)
+reg_test.to_csv(os.path.join("outputs", "regression_test.csv"), index=False)
 
 print("[REGRESSION] Splitter: GroupShuffleSplit")
 print("[REGRESSION] triptime mean (train/test):",
       round(reg_train["triptime"].mean(), 2), "/",
       round(reg_test["triptime"].mean(), 2))
 
-print(f"\nSaved train/test CSVs to ./{OUTPUT_DIR}/")
+print(f"\nSaved train/test CSVs to ./{"outputs"}/")

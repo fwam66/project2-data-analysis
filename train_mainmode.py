@@ -17,11 +17,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay
 
-INPUT_DIR = "outputs"
-TRAIN_CSV = os.path.join(INPUT_DIR, "classification_train.csv")
-TEST_CSV  = os.path.join(INPUT_DIR, "classification_test.csv")
-OUT_DIR   = "outputs"
-os.makedirs(OUT_DIR, exist_ok=True)
+
+TRAIN_CSV = os.path.join("outputs", "classification_train_balanced.csv")
+TEST_CSV  = os.path.join("outputs", "classification_test.csv")
+os.makedirs("outputs", exist_ok=True)
 
 # -----------------------
 # Load
@@ -30,7 +29,7 @@ train = pd.read_csv(TRAIN_CSV)
 test  = pd.read_csv(TEST_CSV)
 
 # Features (simple; no leakage)
-num_feats = ["weekly_hhinc_group", "starthour", "arrhour"]  # add "totalvehs" if you want
+num_feats = ["weekly_hhinc_group", "starthour", "arrhour", "totalvehs"]
 cat_feats = ["homelga", "dayType"]
 target = "mainmode"
 
@@ -77,7 +76,7 @@ ConfusionMatrixDisplay.from_predictions(
 )
 plt.title("DecisionTree — Confusion Matrix (normalized=true)")
 plt.tight_layout()
-plt.savefig(os.path.join(OUT_DIR, "DecisionTree_confusion_matrix.png"), dpi=200)
+plt.savefig(os.path.join("outputs", "DecisionTree_confusion_matrix.png"), dpi=200)
 plt.close()
 
 # ===========
@@ -100,7 +99,5 @@ ConfusionMatrixDisplay.from_predictions(
 )
 plt.title("KNN — Confusion Matrix (normalized=true)")
 plt.tight_layout()
-plt.savefig(os.path.join(OUT_DIR, "KNN_confusion_matrix.png"), dpi=200)
+plt.savefig(os.path.join("outputs", "KNN_confusion_matrix.png"), dpi=200)
 plt.close()
-
-print("\nSaved confusion matrices in ./outputs/")
