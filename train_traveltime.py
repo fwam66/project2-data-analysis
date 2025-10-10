@@ -1,5 +1,5 @@
-# train_taskB_linear.py
-# Linear Regression only (two variants): B1 with cumdist, B2 without cumdist
+# Linear Regression with two variants: with cumdist, or without cumdist
+# Due to the length and time limits of the report, this file is not included.
 
 import os
 import numpy as np
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.pipeline import Pipeline          # <-- FIX: import Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
