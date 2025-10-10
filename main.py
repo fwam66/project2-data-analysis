@@ -5,7 +5,7 @@ trips = pd.read_csv('trips_vista_2023_2024.csv', index_col = 0)
 
 ## Data Cleaning ##
 # Removes missing data and data that won't contribute to analysis
-household_na = household[household['hhinc_group'].isna()]
+
 household = household[household['hhinc_group'].notna()]
 household = household.drop(columns = [
         'surveyperiod', 'hhsize', 'dwelltype', 'owndwell', 'totalbikes',
@@ -82,7 +82,6 @@ purp_map = {
 trips['trippurp'] = trips['trippurp'].map(purp_map)
 
 # Categorise LGA as either City or Shire
-
 household['homelga'] = household['homelga'].str.split(' ').str[-1]
 def define_lga(row):
     if row['homelga'] == '(C)':
@@ -131,3 +130,5 @@ merged_data = merged_data[merged_data['weekly_hhinc_group'].notna()]
 merged_data['weekly_hhinc_group'] = merged_data['weekly_hhinc_group'].apply(int)
 merged_data['annual_hhinc_group'] = merged_data['annual_hhinc_group'].apply(int)
 merged_data.to_csv('merged_data.csv', index = False)
+
+print(merged_data['homelga'].value_counts())
