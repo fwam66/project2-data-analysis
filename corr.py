@@ -25,7 +25,8 @@ merged_data = merged_data.dropna(subset=["weekly_hhinc_group","homelga","mainmod
                                          "trippurp", "totalvehs", "triptime", "cumdist"])
 
 
-#compute the weighted means (income)
+#compute the weighted means - income
+#household income is fine because its ordinal
 
 income_mean = []
 for group in merged_data["weekly_hhinc_group"].unique():
@@ -44,25 +45,6 @@ income_mean = pd.DataFrame(income_mean)
 income_mean["income_groups"] = income_mean["income_groups"].astype("category")
 income_mean["income"] = income_mean["income_groups"].cat.codes
 
-#compute the weighted means (lga)
-
-lga_mean = []
-for group in merged_data["homelga"].unique():
-    column = merged_data[merged_data["homelga"] == group]
-    weighted_vehs = (column["totalvehs"] * column["hhpoststratweight"]).sum()/ column["hhpoststratweight"].sum()
-    weighted_dur = (column["triptime"] * column["trippoststratweight"]).sum()/ column["trippoststratweight"].sum()
-    weighted_dist = (column["cumdist"] * column["trippoststratweight"]).sum()/ column["trippoststratweight"].sum()
-    lga_mean.append({
-        "lga_groups": group,
-        "weighted_totalvehs": weighted_vehs,
-        "weighted_triptime": weighted_dur,
-        "weighted_cumdist": weighted_dist
-        })
-
-lga_mean = pd.DataFrame(lga_mean)
-lga_mean["lga_groups"] = lga_mean["lga_groups"].astype("category")
-lga_mean["lga"] = lga_mean["lga_groups"].cat.codes
-
 
 print("Income Group Weighted Means - Pearson")
 print("Income vs Vehicles:", income_mean["income"].corr(income_mean["weighted_totalvehs"]))
@@ -71,17 +53,8 @@ print("Income vs Trip Distance:", income_mean["income"].corr(income_mean["weight
 print("Vehicle vs Trip Time:",income_mean["weighted_totalvehs"].corr(income_mean["weighted_triptime"]))
 print("Vehicle vs Trip Distance:",income_mean["weighted_totalvehs"].corr(income_mean["weighted_cumdist"]))
 
-print("LGA Group Weighted Means - Pearson")
-print("LGA vs Vehicles:", lga_mean["lga"].corr(lga_mean["weighted_totalvehs"]))
-print("LGA vs Trip Time:", lga_mean["lga"].corr(lga_mean["weighted_triptime"]))
-print("LGA vs Trip Distance:", lga_mean["lga"].corr(lga_mean["weighted_cumdist"]))
-print("Vehicle vs Trip Time:",lga_mean["weighted_totalvehs"].corr(lga_mean["weighted_triptime"]))
-print("Vehicle vs Trip Distance:",lga_mean["weighted_totalvehs"].corr(lga_mean["weighted_cumdist"]))
-
-
-
 #for nmi, we use binned raw data instead
-# bin number can be adjusted, just using 10 because max vehicles is 10
+# bin number can be adjusted, quantile cut so data is more spread out
 bins = 10
 
 merged_data["binned_totalvehs"] = pd.qcut(merged_data["totalvehs"], q=bins, duplicates="drop")
@@ -118,24 +91,13 @@ pearson_pairs_income = [
     ("income", "weighted_totalvehs", "Income vs Vehicles"),
     ("income", "weighted_triptime", "Income vs Trip Time"),
     ("income", "weighted_cumdist", "Income vs Trip Distance"),
-    ]
-pearson_pairs_lga = [
-    ("lga", "weighted_totalvehs", "LGA vs Vehicles"),
-    ("lga", "weighted_triptime", "LGA vs Trip Time"),
-    ("lga", "weighted_cumdist", "LGA vs Trip Distance"),
+    ("weighted_totalvehs", "weighted_triptime", "Vehicles vs Trip Time"),
+    ("weighted_totalvehs", "weighted_cumdist", "Vehicles vs Cumulative Distance"),
     ]
 
 for x, y, title in pearson_pairs_income:
     plt.figure(figsize=(8,6))
     sns.scatterplot(x=x, y=y, data=income_mean, s=100)
-    plt.title(f"{title}")
-    plt.xlabel(x)
-    plt.ylabel(y)
-    plt.show()
-
-for x, y, title in pearson_pairs_lga:
-    plt.figure(figsize=(8,6))
-    sns.scatterplot(x=x, y=y, data=lga_mean, s=100)
     plt.title(f"{title}")
     plt.xlabel(x)
     plt.ylabel(y)
@@ -231,6 +193,3 @@ plt.title("LGA Group vs Main Mode")
 plt.xlabel("Main Mode")
 plt.ylabel("LGA Group")
 plt.show()
-
-
-
